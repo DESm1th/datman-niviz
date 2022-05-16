@@ -1,6 +1,3 @@
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import UniqueConstraint
 
 from dashboard import db
@@ -22,17 +19,22 @@ class Rating(db.Model):
     component = db.Column(
         'component_id',
         db.Integer,
-        db.ForeignKey('Component.id'),
+        db.ForeignKey('component.id'),
         nullable=False)
 
 
 # Should be able to access entities list (backref)
 #
 class TableColumn(db.Model):
+    __tablename__ = 'tablecolumn'
+
     name = db.Column(db.String, primary_key=True)
+
 
 # Should be able to access entities (backref)
 class TableRow(db.Model):
+    __tablename__ = 'tablerow'
+
     name = db.Column(db.String, primary_key=True)
 
 
@@ -46,24 +48,24 @@ class Entity(db.Model):
     # columnname_id
     columnname = db.Column(
         'columnname_id',
-        db.ForeignKey('TableColumn.name'),
+        db.ForeignKey('tablecolumn.name'),
         nullable=False)
     rowname = db.Column(
         'rowname_id',
-        db.ForeignKey('TableRow.name'),
+        db.ForeignKey('tablerow.name'),
         nullable=False)
     # component
     # component_id
     component = db.Column(
         'component_id',
         db.Integer,
-        db.ForeignKey('Component.id'),
+        db.ForeignKey('component.id'),
         nullable=False)
     comment = db.Column(db.Text, default="")
     failed = db.Column(db.Boolean)
     # rating
     # rating_id
-    rating = db.Column('rating_id', db.ForeignKey('Rating.id'))
+    rating = db.Column('rating_id', db.ForeignKey('rating.id'))
 
     @property
     def has_failed(self):
@@ -98,3 +100,8 @@ class Image(db.Model):
     entity_id = db.Column(db.Integer, db.ForeignKey('entity.id'))
 
     __table_args__ = (UniqueConstraint(path), )
+
+
+# This is defined to make it easier to dynamically change databases
+# for the models at runtime
+tables = [Component, Rating, TableColumn, TableRow, Entity, Image]
