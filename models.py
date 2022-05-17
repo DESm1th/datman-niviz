@@ -1,22 +1,24 @@
 from sqlalchemy.schema import UniqueConstraint
 
-from dashboard import db
+from dashboard.models import db, TableMixin
 
 
-class Component(db.Model):
+
+
+class Component(TableMixin, db.Model):
     '''
     Component component ID
     '''
     id = db.Column(db.Integer, primary_key=True)
 
 
-class Rating(db.Model):
+class Rating(TableMixin, db.Model):
     '''
     Rating ID --> named rating mapping
     '''
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    component = db.Column(
+    component_id = db.Column(
         'component_id',
         db.Integer,
         db.ForeignKey('component.id'),
@@ -25,20 +27,20 @@ class Rating(db.Model):
 
 # Should be able to access entities list (backref)
 #
-class TableColumn(db.Model):
+class TableColumn(TableMixin, db.Model):
     __tablename__ = 'tablecolumn'
 
     name = db.Column(db.String, primary_key=True)
 
 
 # Should be able to access entities (backref)
-class TableRow(db.Model):
+class TableRow(TableMixin, db.Model):
     __tablename__ = 'tablerow'
 
     name = db.Column(db.String, primary_key=True)
 
 
-class Entity(db.Model):
+class Entity(TableMixin, db.Model):
     '''
     Single entity to QC
     '''
@@ -55,17 +57,17 @@ class Entity(db.Model):
         db.ForeignKey('tablerow.name'),
         nullable=False)
     # component
-    # component_id
-    component = db.Column(
+    component_id = db.Column(
         'component_id',
         db.Integer,
         db.ForeignKey('component.id'),
         nullable=False)
     comment = db.Column(db.Text, default="")
     failed = db.Column(db.Boolean)
-    # rating
-    # rating_id
-    rating = db.Column('rating_id', db.ForeignKey('rating.id'))
+    rating_id = db.Column('rating_id', db.ForeignKey('rating.id'))
+
+    rating = db.relationship('Rating', uselist=False)
+    images = db.relationship('Image', back_populates='entity')
 
     @property
     def has_failed(self):
@@ -89,15 +91,15 @@ class Entity(db.Model):
         )
 
 
-class Image(db.Model):
+class Image(TableMixin, db.Model):
     '''
     Images used for an Entity to assess quality
     '''
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.Text)
-    # # entity
-    # # entity_id
     entity_id = db.Column(db.Integer, db.ForeignKey('entity.id'))
+
+    entity = db.relationship('Entity', back_populates='images')
 
     __table_args__ = (UniqueConstraint(path), )
 
