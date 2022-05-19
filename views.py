@@ -1,6 +1,6 @@
 import logging
 
-from flask import render_template
+from flask import render_template, current_app
 from flask_login import login_required
 
 from . import niviz_bp
@@ -12,25 +12,22 @@ logger = logging.getLogger(__name__)
 
 @niviz_bp.route('/niviz-rater')
 def index(study, pipeline):
-    return render_template("niviz.html")
+    return render_template('niviz.html')
 
 
 def _rating(rating):
     return {'id': rating.id, 'name': rating.name} if rating else None
 
 
-# Fix this later (ref'd in get_entity_info, get_entity_view)
-# def _fileserver(path, app_config):
-#     """
-#     Transform local directory path to fileserver path
-#     """
-#
-#     base = app_config['niviz_rater.base_path']
-#     address = app_config['niviz_rater.fileserver']
-#
-#     img = os.path.relpath(path, base)
-#     addr = f"{address}/{img}"
-#     return addr
+# Make sure this is accessible. May need to update code to
+# send files with server
+def _fileserver(path, study, pipeline):
+    """
+    Transform local directory path to fileserver path
+    """
+    base = current_app.config[f'{study}_{pipeline}.base_path']
+    img = os.path.relpath(path, base)
+    return img
 
 
 @niviz_bp.route('/api/overview')
@@ -73,8 +70,8 @@ def get_entity_info(study, pipeline, entity_id):
         "rating": _rating(e.rating),
         "comment": e.comment,
         "failed": e.failed,
-        # "imagePaths":
-        # [_fileserver(i.path, request.app.config) for i in e.images],
+        "imagePaths":
+        [_fileserver(i.path, study, pipeline) for i in e.images],
         "id": e.id,
         "rowName": e.name,
         "columnName": e.name
@@ -106,8 +103,8 @@ def get_entity_view(study, pipeline, entity_id):
         "entityRating": _rating(entity.rating),
         "entityComment": entity.comment,
         "entityAvailableRatings": available_ratings,
-        # "entityImages":
-        # [_fileserver(i.path, request.app.config) for i in entity.images],
+        "entityImages":
+        [_fileserver(i.path, study, pipeline) for i in entity.images],
         "entityFailed": entity.failed
     }
     return response
@@ -147,49 +144,42 @@ def update_rating(study, pipeline):
     return {}, 200
 
 
-# Fix later
-# @niviz_bp.route('/api/export')
-# @set_db
-# def export_csv():
-#     """
-#     Export participants.tsv CSV file
-#     """
-#
-#     entities = (Entity.select(Entity, TableColumn, Rating).join(
-#         Rating, JOIN.LEFT_OUTER).switch(Entity).join(TableColumn).order_by(
-#             TableColumn.name))
-#     columns = TableColumn.select().order_by(TableColumn.name)
-#     rows = TableRow.select()
-#     rows_pf = prefetch(rows, entities)
-#
-#     rows = [_make_row(r, columns) for r in rows_pf]
-#     header = [
-#         f"{c.name}\t{c.name}_passfail\t{c.name}_comment" for c in columns
-#     ]
-#     header = "\t".join(["subjects"] + header)
-#     csv = "\n".join([header] + rows)
-#     return csv
+@niviz_bp.route('/api/export')
+@set_db
+def export_csv(study, pipeline):
+    """
+    Export participants.tsv CSV file
+    """
+    columns = TableColumn.query.order_by(TableColumn.name).all()
+    row_items = TableRow.query.all()
+
+    rows = [_make_row(r, columns) for r in row_items]
+    header = [
+        f"{c.name}\t{c.name}_passfail\t{c.name}_comment" for c in columns
+    ]
+    header = "\t".join(["subjects"] + header)
+    csv = "\n".join([header] + rows)
+    return csv
 
 
-# Fix later
-# def _make_row(row, columns):
-#     """
-#     Given a set of Entities for a given row, create
-#     column entries
-#     """
-#     p = 0
-#     entities = row.entities
-#     entries = [row.name]
-#     empty = ("", "", "")
-#     for c in columns:
-#         try:
-#             e = entities[p]
-#             if e.columnname == c:
-#                 entries.extend(e.entry)
-#                 p += 1
-#             else:
-#                 entries.extend(empty)
-#         except IndexError:
-#             entries.extend(empty)
-#
-#     return "\t".join(entries)
+def _make_row(row, columns):
+    """
+    Given a set of Entities for a given row, create
+    column entries
+    """
+    p = 0
+    entities = row.entities
+    entries = [row.name]
+    empty = ("", "", "")
+    for c in columns:
+        try:
+            e = entities[p]
+            if e.columnname == c.name:
+                entries.extend(e.entry)
+                p += 1
+            else:
+                entries.extend(empty)
+        except IndexError:
+            entries.extend(empty)
+
+    return "\t".join(entries)

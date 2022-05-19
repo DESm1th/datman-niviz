@@ -39,6 +39,8 @@ class TableRow(TableMixin, db.Model):
 
     name = db.Column(db.String, primary_key=True)
 
+    entities = db.relationship('Entity', order_by='Entity.columnname')
+
 
 class Entity(TableMixin, db.Model):
     '''
