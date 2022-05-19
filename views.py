@@ -1,6 +1,7 @@
+import os
 import logging
 
-from flask import render_template, current_app
+from flask import render_template, current_app, request
 from flask_login import login_required
 
 from . import niviz_bp
@@ -25,7 +26,7 @@ def _fileserver(path, study, pipeline):
     """
     Transform local directory path to fileserver path
     """
-    base = current_app.config[f'{study}_{pipeline}.base_path']
+    base = current_app.config['NIVIZ_SETTINGS'][f'{study}_{pipeline}']['base_path']
     img = os.path.relpath(path, base)
     return img
 
@@ -53,7 +54,39 @@ def summary(study, pipeline):
     }
 
 
-# def spreadsheet
+@niviz_bp.route('/api/spreadsheet')
+@set_db
+def spreadsheet(study, pipeline):
+    """
+    Query database for information required to construct
+    interactive table, yields for each TableRow it's
+    set of entities
+    """
+
+    q = Entity.query.all()
+
+    # Need to remove base path
+    r = {
+        "entities": [{
+            "rowName":
+            e.rowname,
+            "columnName":
+            e.columnname,
+            "imagePaths":
+            [_fileserver(i.path, study, pipeline) for i in e.images],
+            "comment":
+            e.comment,
+            "failed":
+            e.failed,
+            "id":
+            e.id,
+            "name":
+            e.name,
+            "rating":
+            _rating(e.rating)
+        } for e in q]
+    }
+    return r
 
 
 @niviz_bp.route('/api/entity/<int:entity_id>')
