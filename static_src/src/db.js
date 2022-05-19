@@ -31,10 +31,10 @@ export async function fetchEntities(){
 	});
 }
 
-export const updateRating = async function(study, pipeline, rating){
+export const updateRating = async function(rating){
 
 	const statusCode = await postDB(
-      './study/${study}/pipeline/${pipeline}/api/entity', rating);
+      './api/entity', rating);
 	if (statusCode != 200){
 		alert("Failed to POST to DB!");
 	}
@@ -42,9 +42,9 @@ export const updateRating = async function(study, pipeline, rating){
 	return entities
 }
 
-export const getOverview = async function(study, pipeline){
+export const getOverview = async function(){
 	const response = await fetch(
-      "./study/${study}/pipeline/${pipeline}/api/overview");
+      "./api/overview");
 	return await response.json();
 }
 
@@ -53,10 +53,10 @@ export async function exportCsv(){
 	return await response.text()
 };
 
-export async function getEntityView(study, pipeline, id){
+export async function getEntityView(id){
 	/* Fetch view for entity */
 	let response = await fetch(
-      `./study/${study}/pipeline/${pipeline}/api/entity/${id}/view`)
+      `./api/entity/${id}/view`)
 	let entity_view = await response.json();
   return {
     failed: entity_view.entityFailed,
