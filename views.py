@@ -20,8 +20,6 @@ def _rating(rating):
     return {'id': rating.id, 'name': rating.name} if rating else None
 
 
-# Make sure this is accessible. May need to update code to
-# send files with server
 def _fileserver(path, study, pipeline):
     """
     Transform local directory path to fileserver path
