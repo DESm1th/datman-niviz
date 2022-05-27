@@ -1,0 +1,21 @@
+ImageExtensions: list(str(ignore_case = True), min = 1)
+RowEntities: list(str(), min=1)
+
+RowDescription:
+  entities: list(include('entity'), min = 1)
+  name: str(min = 1)
+
+Components: list(include('Component'), min = 1)
+---
+Component:
+  entities: list(include('entity'), min = 1)
+  name: str(min = 1)
+  column: str(min = 1)
+  images: list(include('image'), min = 1)
+  ratings: include('rating', min = 1)
+
+entity: Entities()
+
+image: map(str(exclude = '!?{}'), str(exclude = '!?{}'))
+
+rating: list(str(exclude = '!?{}', min = 1))

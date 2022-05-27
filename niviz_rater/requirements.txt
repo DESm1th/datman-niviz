@@ -1,0 +1,6 @@
+peewee
+bottle
+pyyaml
+pybids
+yamale
+psycopg2-binary
