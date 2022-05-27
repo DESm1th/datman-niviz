@@ -1,11 +1,11 @@
-This is a datman-dashboard-ized version of Jer's lovely [niviz-rater app.](https://github.com/jerdra/niviz-rater)
+This is a datman/dashboard-ized version of Jer's lovely [niviz-rater app.](https://github.com/jerdra/niviz-rater)
 
 ## Installation
 1. [install the dashboard](http://imaging-genetics.camh.ca/datman-dashboard/installation.html) if you haven't already.
-2. Clone the datman-niviz blueprint into the dashboard's blueprint folder.
+2. Add datman_niviz as a git submodule
 ```bash
 cd datman-dashboard/dashboard/blueprints
-git clone git@github.com:DESm1th/datman-niviz.git niviz_rater
+git submodule add git@github.com:DESm1th/datman_niviz.git
 ```
 3. Build the static files. Note that you must have npm installed. If this
 step is successful it will have created the folder
@@ -15,14 +15,24 @@ cd niviz_rater/static_src
 npm install
 npm run build
 ```
-4. Provide the full path to the configuration file (see the
-  Configuration File section for info on constructing one) in the
-  `NIVIZ_RATER_CONF` environment variable.
-5. Initialize the databases. You must run this as the user that
+4. Configure your shell's paths. Update the `PYTHONPATH`.
+```bash
+export PYTHONPATH=${your_dash_install_path}/dashboard/blueprints/datman_niviz:${PYTHONPATH}
+```
+Update the `PATH`.
+```bash
+export PATH=${your_dash_install_path}/dashboard/blueprints/datman_niviz/niviz_rater/bin:${PATH}
+```
+5. Provide the full path to the configuration file in the
+  `NIVIZ_RATER_CONF` environment variable. See the 'Configuration file' section
+  for more info.
+  ```bash
+  export NIVIZ_RATER_CONF=$your_config_file_path
+  ```
+6. Initialize the databases. You must run this as the user that
 the dashboard will use to access the database.
 ```bash
-cd datman-dashboard/dashboard/blueprints/niviz_rater/bin
-./init_db.py
+init_db.py
 ```
 
 ## Configuration File
