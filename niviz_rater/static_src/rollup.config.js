@@ -36,7 +36,7 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: '../../../static/niviz_rater/bundle.js'
+		file: '../../../../static/niviz_rater/bundle.js'
 	},
 	plugins: [
 		svelte({
