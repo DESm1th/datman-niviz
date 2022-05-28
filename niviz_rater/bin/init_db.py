@@ -33,10 +33,9 @@ from yamale.validators import DefaultValidators, Validator
 
 import dashboard
 import niviz_rater.models as models
+from ....utils import get_config
 
 logger = logging.getLogger(__name__)
-
-ENV_CONFIG_VAR = "NIVIZ_RATER_CONF"
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_BIDS = os.path.join(base_dir, "../data/bids.json")
@@ -191,22 +190,6 @@ def load_json(file):
     with open(file, 'r') as f:
         result = json.load(f)
     return result
-
-
-def get_config():
-    config_file = os.getenv(ENV_CONFIG_VAR)
-    try:
-        with open(config_file, "r") as f:
-            config = yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.error(f"Config file {config_file} doesn't exist. Check the "
-                     "value of the environment variable "
-                     f"'{ENV_CONFIG_VAR}' before trying again.")
-        return {}
-    except TypeError:
-        logger.error(f"Config file not provided. Please set {ENV_CONFIG_VAR}")
-        return {}
-    return config
 
 
 def initialize_db(db_name, config, dash_config):
