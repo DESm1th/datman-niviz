@@ -31,9 +31,9 @@ from bids.layout import BIDSLayout, add_config_paths
 import yamale
 from yamale.validators import DefaultValidators, Validator
 
-import dashboard
+from dashboard import create_app, db
 import niviz_rater.models as models
-from niviz_rater.utils import get_config
+from niviz_rater.utils import get_config, set_db
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +177,7 @@ def main():
 
     config = get_config()
 
-    app = dashboard.create_app()
+    app = create_app()
     context = app.app_context()
     context.push()
 
@@ -198,11 +198,8 @@ def initialize_db(db_name, config, dash_config):
 
     qc_spec = get_qc_spec(db_name, config)
     bids_files = get_files(db_name, config, qc_spec)
-    engine = dashboard.db.get_engine(bind=db_name)
-    session = db.create_scoped_session(
-        options=dict(bind=engine, binds=dash_config['SQLALCHEMY_BINDS'])
-    )
-    build_index(session, bids_files, qc_spec)
+    study, pipeline = db_name.split("_")
+    build_index(study, pipeline, bids_files, qc_spec)
 
 
 def make_database(db_name, dash_config):
@@ -216,7 +213,7 @@ def make_database(db_name, dash_config):
 
 
 def make_tables(db_name):
-    engine = dashboard.db.get_engine(bind=db_name)
+    engine = db.get_engine(bind=db_name)
     for table in models.tables:
         table.__table__.create(engine, checkfirst=True)
 
@@ -322,7 +319,8 @@ def get_qc_bidsfiles(qc_dataset, qc_spec):
     return bidsfiles
 
 
-def build_index(session, bids_files, qc_spec):
+@set_db
+def build_index(study, pipeline, bids_files, qc_spec):
     """
     Initialize database with objects
     """
@@ -331,51 +329,50 @@ def build_index(session, bids_files, qc_spec):
 
     for c in qc_spec['Components']:
         component = ConfigComponent(**c)
-        add_records(session,
-                    component.build_qc_entities(bids_files),
+        add_records(component.build_qc_entities(bids_files),
                     component.available_ratings,
                     row_tpl)
 
 
-def add_records(session, entities, available_ratings, row_tpl):
-    component = add_component(db)
-    add_ratings(session, available_ratings, component)
-    add_rownames(session, entities, row_tpl)
-    add_colnames(session, entities)
+def add_records(entities, available_ratings, row_tpl):
+    component = add_component()
+    add_ratings(available_ratings, component)
+    add_rownames(entities, row_tpl)
+    add_colnames(entities)
 
     for item in entities:
-        entity = add_entity(session, item, component, row_tpl)
-        add_images(session, item, entity)
+        entity = add_entity(item, component, row_tpl)
+        add_images(item, entity)
 
 
-def add_component(session):
+def add_component():
     component = models.Component()
-    session.add(component)
-    session.commit()
+    db.session.add(component)
+    db.session.commit()
     return component
 
 
-def add_ratings(session, available_ratings, component):
+def add_ratings(available_ratings, component):
     for item in available_ratings:
-        session.add(models.Rating(name=item, component_id=component.id))
-        session.commit()
+        db.session.add(models.Rating(name=item, component_id=component.id))
+        db.session.commit()
 
 
-def add_rownames(session, entities, row_tpl):
+def add_rownames(entities, row_tpl):
     unique_rows = set([make_rowname(row_tpl, e.entities) for e in entities])
     for row in unique_rows:
-        session.add(models.TableRow(name=row))
+        db.session.add(models.TableRow(name=row))
         try:
-            session.commit()
+            db.session.commit()
         except IntegrityError:
-            session.rollback()
+            db.session.rollback()
 
 
-def add_colnames(session, entities):
+def add_colnames(entities):
     unique_cols = set([e.column_name for e in entities])
     for col in unique_cols:
-        session.add(models.TableColumn(name=col))
-    session.commit()
+        db.session.add(models.TableColumn(name=col))
+    db.session.commit()
 
 
 def make_rowname(rowtpl, entities):
@@ -383,20 +380,20 @@ def make_rowname(rowtpl, entities):
     return rowtpl.tpl.substitute(keys)
 
 
-def add_entity(session, e, component, row_tpl):
+def add_entity(e, component, row_tpl):
     entity = Entity(name=e.name,
                     component_id=component.id,
                     rowname=make_rowname(row_tpl, e.entities),
                     columnname=e.column_name)
-    session.add(entity)
-    session.commit
+    db.session.add(entity)
+    db.session.commit
     return entity
 
 
-def add_images(session, e, entity):
+def add_images(e, entity):
     for i in e.images:
-        session.add(Image(path=i, entity_id=entity.id))
-    session.commit()
+        db.session.add(Image(path=i, entity_id=entity.id))
+    db.session.commit()
 
 
 def _is_subdict(big, small):
