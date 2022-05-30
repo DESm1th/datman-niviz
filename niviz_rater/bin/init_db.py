@@ -335,45 +335,44 @@ def build_index(db, bids_files, qc_spec):
 
 
 def add_records(db, entities, available_ratings, row_tpl):
-    component = add_component()
-    add_ratings(available_ratings, component)
-    add_rownames(entities, row_tpl)
-    add_colnames(entities)
+    component = add_component(db)
+    add_ratings(db, available_ratings, component)
+    add_rownames(db, entities, row_tpl)
+    add_colnames(db, entities)
 
     for item in entities:
-        entity = add_entity(item, component, row_tpl)
-        add_images(item, entity)
+        entity = add_entity(db, item, component, row_tpl)
+        add_images(db, item, entity)
 
 
-def add_component():
+def add_component(db):
     component = models.Component()
-    dashboard.db.session.add(component)
-    dashboard.db.session.commit()
+    db.session.add(component)
+    db.session.commit()
     return component
 
 
-def add_ratings(available_ratings, component):
+def add_ratings(db, available_ratings, component):
     for item in available_ratings:
-        dashboard.db.session.add(
-            models.Rating(name=item, component_id=component.id))
-    dashboard.db.session.commit()
+        db.session.add(models.Rating(name=item, component_id=component.id))
+        db.session.commit()
 
 
-def add_rownames(entities, row_tpl):
+def add_rownames(db, entities, row_tpl):
     unique_rows = set([make_rowname(row_tpl, e.entities) for e in entities])
     for row in unique_rows:
-        dashboard.db.session.add(models.TableRow(name=row))
+        db.session.add(models.TableRow(name=row))
         try:
-            dashboard.db.session.commit()
+            db.session.commit()
         except IntegrityError:
-            dashboard.db.session.rollback()
+            db.session.rollback()
 
 
-def add_colnames(entities):
+def add_colnames(db, entities):
     unique_cols = set([e.column_name for e in entities])
     for col in unique_cols:
-        dashboard.db.session.add(models.TableColumn(name=col))
-    dashboard.db.session.commit()
+        db.session.add(models.TableColumn(name=col))
+    db.session.commit()
 
 
 def make_rowname(rowtpl, entities):
@@ -381,20 +380,20 @@ def make_rowname(rowtpl, entities):
     return rowtpl.tpl.substitute(keys)
 
 
-def add_entity(e, component, row_tpl):
+def add_entity(db, e, component, row_tpl):
     entity = Entity(name=e.name,
                     component_id=component.id,
                     rowname=make_rowname(row_tpl, e.entities),
                     columnname=e.column_name)
-    dashboard.db.session.add(entity)
-    dashboard.db.session.commit
+    db.session.add(entity)
+    db.session.commit
     return entity
 
 
-def add_images(e, entity):
+def add_images(db, e, entity):
     for i in e.images:
-        dashboard.db.session.add(Image(path=i, entity_id=entity.id))
-    dashboard.db.session.commit()
+        db.session.add(Image(path=i, entity_id=entity.id))
+    db.session.commit()
 
 
 def _is_subdict(big, small):
