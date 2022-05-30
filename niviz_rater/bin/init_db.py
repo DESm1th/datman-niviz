@@ -33,7 +33,7 @@ from yamale.validators import DefaultValidators, Validator
 
 import dashboard
 import niviz_rater.models as models
-from ....utils import get_config
+from niviz_rater.utils import get_config
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from flask import render_template, current_app, request
 from flask_login import login_required
 
 from . import niviz_bp
-from .utils import set_db
+from niviz_rater.utils import set_db
 from niviz_rater.models import Entity, Image, TableRow, TableColumn, Rating
 
 logger = logging.getLogger(__name__)

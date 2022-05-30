@@ -2,7 +2,7 @@ import os
 
 from flask import Blueprint
 
-from .utils import get_config
+from niviz_rater.utils import get_config
 
 niviz_bp = Blueprint(
     "niviz_rater",
