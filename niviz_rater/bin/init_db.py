@@ -347,32 +347,33 @@ def add_records(db, entities, available_ratings, row_tpl):
 
 def add_component():
     component = models.Component()
-    db.session.add(component)
-    db.session.commit()
+    dashboard.db.session.add(component)
+    dashboard.db.session.commit()
     return component
 
 
 def add_ratings(available_ratings, component):
     for item in available_ratings:
-        db.session.add(models.Rating(name=item, component_id=component.id))
-    db.session.commit()
+        dashboard.db.session.add(
+            models.Rating(name=item, component_id=component.id))
+    dashboard.db.session.commit()
 
 
 def add_rownames(entities, row_tpl):
     unique_rows = set([make_rowname(row_tpl, e.entities) for e in entities])
     for row in unique_rows:
-        db.session.add(models.TableRow(name=row))
+        dashboard.db.session.add(models.TableRow(name=row))
         try:
-            db.session.commit()
+            dashboard.db.session.commit()
         except IntegrityError:
-            db.session.rollback()
+            dashboard.db.session.rollback()
 
 
 def add_colnames(entities):
     unique_cols = set([e.column_name for e in entities])
     for col in unique_cols:
-        db.session.add(models.TableColumn(name=col))
-    db.session.commit()
+        dashboard.db.session.add(models.TableColumn(name=col))
+    dashboard.db.session.commit()
 
 
 def make_rowname(rowtpl, entities):
@@ -385,15 +386,15 @@ def add_entity(e, component, row_tpl):
                     component_id=component.id,
                     rowname=make_rowname(row_tpl, e.entities),
                     columnname=e.column_name)
-    db.session.add(entity)
-    db.session.commit
+    dashboard.db.session.add(entity)
+    dashboard.db.session.commit
     return entity
 
 
 def add_images(e, entity):
     for i in e.images:
-        db.session.add(Image(path=i, entity_id=entity.id))
-    db.session.commit()
+        dashboard.db.session.add(Image(path=i, entity_id=entity.id))
+    dashboard.db.session.commit()
 
 
 def _is_subdict(big, small):
