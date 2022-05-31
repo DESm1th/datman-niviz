@@ -16,7 +16,7 @@ def index(study, pipeline):
     return render_template('niviz.html')
 
 
-@niviz_bp.route('/qc-img/<string:image>')
+@niviz_bp.route('/qc-img/<regex(".*"):image>')
 def serve_images(study, pipeline, image):
     base = current_app.config['NIVIZ_RATER_CONF'][
         f'{study}_{pipeline}']['base_dir']
