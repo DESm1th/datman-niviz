@@ -41,7 +41,7 @@ class Entity(TableMixin, db.Model):
     '''
     Single entity to QC
     '''
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     columnname = db.Column(
         'columnname_id',
@@ -91,7 +91,7 @@ class Image(TableMixin, db.Model):
     '''
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.Text)
-    entity_id = db.Column(db.String, db.ForeignKey('entity.id'))
+    entity_id = db.Column(db.Integer, db.ForeignKey('entity.id'))
 
     entity = db.relationship('Entity', back_populates='images')
 
