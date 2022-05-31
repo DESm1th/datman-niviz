@@ -60,8 +60,16 @@ class Entity(TableMixin, db.Model):
     failed = db.Column(db.Boolean)
     rating_id = db.Column('rating_id', db.ForeignKey('rating.id'))
 
-    rating = db.relationship('Rating', uselist=False)
+    _rating = db.relationship('Rating', uselist=False)
     images = db.relationship('Image', back_populates='entity')
+
+    @property
+    def rating(self):
+        return self._rating
+
+    @rating.setter
+    def rating(self, val):
+        self._rating = Rating.query.get(val)
 
     @property
     def has_failed(self):
