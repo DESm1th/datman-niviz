@@ -381,10 +381,10 @@ def make_rowname(rowtpl, entities):
 
 
 def add_entity(e, component, row_tpl):
-    entity = Entity(name=e.name,
-                    component_id=component.id,
-                    rowname=make_rowname(row_tpl, e.entities),
-                    columnname=e.column_name)
+    entity = models.Entity(name=e.name,
+                           component_id=component.id,
+                           rowname=make_rowname(row_tpl, e.entities),
+                           columnname=e.column_name)
     db.session.add(entity)
     db.session.commit
     return entity
@@ -392,7 +392,7 @@ def add_entity(e, component, row_tpl):
 
 def add_images(e, entity):
     for i in e.images:
-        db.session.add(Image(path=i, entity_id=entity.id))
+        db.session.add(models.Image(path=i, entity_id=entity.id))
     db.session.commit()
 
 
