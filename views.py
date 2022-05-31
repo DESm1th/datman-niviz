@@ -161,16 +161,10 @@ def update_rating(study, pipeline):
     expected_keys = {'rating', 'comment', 'failed'}
     data = request.json
     if data is None:
-        logger.info("No changes requested...")
         return
-    logger.info("Received message from application!")
     update_keys = expected_keys.intersection(data.keys())
-    logger.info("Updating keys")
-    logger.info(update_keys)
 
-    # Select entity
     entity = Entity.query.get(data['id'])
-    logger.info(data)
 
     # Update entity with available keys
     for k in update_keys:
