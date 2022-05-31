@@ -386,7 +386,7 @@ def add_entity(e, component, row_tpl):
                            rowname=make_rowname(row_tpl, e.entities),
                            columnname=e.column_name)
     db.session.add(entity)
-    db.session.commit
+    db.session.commit()
     return entity
 
 

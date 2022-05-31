@@ -56,7 +56,7 @@ class Entity(TableMixin, db.Model):
         db.Integer,
         db.ForeignKey('component.id'),
         nullable=False)
-    comment = db.Column(db.Text, default="")
+    comment = db.Column(db.Text, default="", nullable=False)
     failed = db.Column(db.Boolean)
     rating_id = db.Column('rating_id', db.ForeignKey('rating.id'))
 

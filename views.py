@@ -24,7 +24,8 @@ def _fileserver(path, study, pipeline):
     """
     Transform local directory path to fileserver path
     """
-    base = current_app.config['NIVIZ_SETTINGS'][f'{study}_{pipeline}']['base_path']
+    base = current_app.config['NIVIZ_RATER_CONF'][
+        f'{study}_{pipeline}']['base_dir']
     img = os.path.relpath(path, base)
     return img
 
