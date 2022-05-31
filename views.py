@@ -1,7 +1,7 @@
 import os
 import logging
 
-from flask import render_template, current_app, request
+from flask import render_template, current_app, request, send_from_directory
 from flask_login import login_required
 
 from . import niviz_bp
@@ -16,18 +16,25 @@ def index(study, pipeline):
     return render_template('niviz.html')
 
 
+@niviz_bp.route('/qc-img/<string:image>')
+def serve_images(study, pipeline, image):
+    base = current_app.config['NIVIZ_RATER_CONF'][
+        f'{study}_{pipeline}']['base_dir']
+    return send_from_directory(base, image)
+
+
 def _rating(rating):
     return {'id': rating.id, 'name': rating.name} if rating else None
 
 
-def _fileserver(path, study, pipeline):
+def _img_path(path, study, pipeline):
     """
     Transform local directory path to fileserver path
     """
     base = current_app.config['NIVIZ_RATER_CONF'][
         f'{study}_{pipeline}']['base_dir']
     img = os.path.relpath(path, base)
-    return img
+    return os.path.join("qc-img", img)
 
 
 @niviz_bp.route('/api/overview')
@@ -72,7 +79,7 @@ def spreadsheet(study, pipeline):
             "columnName":
             e.columnname,
             "imagePaths":
-            [_fileserver(i.path, study, pipeline) for i in e.images],
+            [_img_path(i.path, study, pipeline) for i in e.images],
             "comment":
             e.comment,
             "failed":
@@ -103,7 +110,7 @@ def get_entity_info(study, pipeline, entity_id):
         "comment": e.comment,
         "failed": e.failed,
         "imagePaths":
-        [_fileserver(i.path, study, pipeline) for i in e.images],
+        [_img_path(i.path, study, pipeline) for i in e.images],
         "id": e.id,
         "rowName": e.name,
         "columnName": e.name
@@ -136,7 +143,7 @@ def get_entity_view(study, pipeline, entity_id):
         "entityComment": entity.comment,
         "entityAvailableRatings": available_ratings,
         "entityImages":
-        [_fileserver(i.path, study, pipeline) for i in entity.images],
+        [_img_path(i.path, study, pipeline) for i in entity.images],
         "entityFailed": entity.failed
     }
     return response
