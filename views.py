@@ -1,7 +1,8 @@
 import os
 import logging
 
-from flask import render_template, current_app, request, send_from_directory
+from flask import (render_template, current_app, request, send_from_directory,
+                   redirect, url_for, flash)
 from flask_login import login_required
 
 from . import niviz_bp
@@ -11,12 +12,26 @@ from niviz_rater.models import Entity, Image, TableRow, TableColumn, Rating
 logger = logging.getLogger(__name__)
 
 
+@niviz_bp.before_request
+def before_request():
+    if 'study' not in request.view_args:
+        flash("Malformed request")
+        return redirect(url_for('main.index'))
+
+    study = request.view_args['study']
+    if not current_user.has_study_access(study):
+        flash(f"Permission denied for study {study}")
+        return redirect(url_for('main.index'))
+
+
 @niviz_bp.route('/niviz-rater')
+@login_required
 def index(study, pipeline):
     return render_template('niviz.html')
 
 
 @niviz_bp.route('/qc-img/<regex(".*"):image>')
+@login_required
 def serve_images(study, pipeline, image):
     base = current_app.config['NIVIZ_RATER_CONF'][
         f'{study}_{pipeline}']['base_dir']
@@ -39,6 +54,7 @@ def _img_path(path, study, pipeline):
 
 @niviz_bp.route('/api/overview')
 @set_db
+@login_required
 def summary(study, pipeline):
     """
     Pull summary information from index, yield:
@@ -62,6 +78,7 @@ def summary(study, pipeline):
 
 @niviz_bp.route('/api/spreadsheet')
 @set_db
+@login_required
 def spreadsheet(study, pipeline):
     """
     Query database for information required to construct
@@ -97,6 +114,7 @@ def spreadsheet(study, pipeline):
 
 @niviz_bp.route('/api/entity/<int:entity_id>')
 @set_db
+@login_required
 def get_entity_info(study, pipeline, entity_id):
     try:
         e = Entity.query.get(entity_id)
@@ -120,6 +138,7 @@ def get_entity_info(study, pipeline, entity_id):
 
 @niviz_bp.route('/api/entity/<int:entity_id>/view')
 @set_db
+@login_required
 def get_entity_view(study, pipeline, entity_id):
     """
     Retrieve full information for entity
@@ -151,6 +170,7 @@ def get_entity_view(study, pipeline, entity_id):
 
 @niviz_bp.route('/api/entity', methods=['POST'])
 @set_db
+@login_required
 def update_rating(study, pipeline):
     """
     Post body should contain information about:
@@ -179,6 +199,7 @@ def update_rating(study, pipeline):
 
 @niviz_bp.route('/api/export')
 @set_db
+@login_required
 def export_csv(study, pipeline):
     """
     Export participants.tsv CSV file
