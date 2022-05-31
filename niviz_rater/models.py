@@ -42,7 +42,7 @@ class Entity(TableMixin, db.Model):
     Single entity to QC
     '''
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, unique=True, nullable=False)
     columnname = db.Column(
         'columnname_id',
         db.ForeignKey('tablecolumn.name'),
@@ -90,8 +90,9 @@ class Image(TableMixin, db.Model):
     Images used for an Entity to assess quality
     '''
     id = db.Column(db.Integer, primary_key=True)
-    path = db.Column(db.Text)
-    entity_id = db.Column(db.Integer, db.ForeignKey('entity.id'))
+    path = db.Column(db.Text, nullable=False)
+    entity_id = db.Column(
+        db.Integer, db.ForeignKey('entity.id'), nullable=False)
 
     entity = db.relationship('Entity', back_populates='images')
 
