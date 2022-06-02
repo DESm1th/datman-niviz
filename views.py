@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 
 from . import niviz_bp
 from niviz_rater.utils import set_db
-from niviz_rater.models import Entity, Image, TableRow, TableColumn, Rating
+from niviz_rater.models import Entity, TableRow, TableColumn, Rating
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ def summary(study, pipeline):
         - remaining un-rated images
         - total number of ratings required
     """
-    n_unrated = Entity.query.filter(Entity.failed == None).count()
+    n_unrated = Entity.query.filter(Entity.failed == None).count()  # noqa: E711,E501
     n_rows = TableRow.query.count()
     n_cols = TableColumn.query.count()
     n_entities = Entity.query.count()
@@ -191,7 +191,7 @@ def update_rating(study, pipeline):
         setattr(entity, k, data[k])
     try:
         entity.save()
-    except:
+    except:  # noqa: E722
         return {}, 400
 
     return {}, 200

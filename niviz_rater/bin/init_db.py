@@ -111,7 +111,6 @@ class ConfigComponent:
             logger.error(f"Got {len(matches)} matches to entity,"
                          " expected 1!")
             logger.error(f"Matching specification:\n {image_descriptor}")
-            print_matches = "\n".join([m.path for m in matches])
             raise ValueError
 
         try:
@@ -145,8 +144,7 @@ class ConfigComponent:
                     QCEntity(images=[m.path for m in matched_images],
                              entities={
                                  k: matched_images[0].entities[k]
-                                 for k in self.entities
-                             },
+                                 for k in self.entities},
                              tpl_name=self.name,
                              tpl_column_name=self.column))
 
@@ -231,7 +229,7 @@ def get_qc_spec(db_name, config):
                      "Aborting database initialization.")
         return
     return validate_config(spec_file, bids_configs,
-            schema_file=config.get("schema", DEFAULT_SCHEMA))
+                           schema_file=config.get("schema", DEFAULT_SCHEMA))
 
 
 def get_files(db_name, config, qc_spec):
