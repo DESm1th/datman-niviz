@@ -1,5 +1,3 @@
-peewee
-bottle
 pyyaml
 pybids
 yamale
