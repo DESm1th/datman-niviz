@@ -31,6 +31,7 @@ from bids.layout import BIDSLayout, add_config_paths
 import yamale
 from yamale.validators import DefaultValidators, Validator
 
+import dashboard
 from dashboard import create_app, db
 import niviz_rater.models as models
 from niviz_rater.utils import get_config, set_db
@@ -200,6 +201,7 @@ def initialize_db(db_name, config, dash_config):
     bids_files = get_files(db_name, config, qc_spec)
     study, pipeline = db_name.split("_")
     build_index(study, pipeline, bids_files, qc_spec)
+    add_pipeline(db_name)
 
 
 def make_database(db_name, dash_config):
@@ -402,6 +404,16 @@ def _is_subdict(big, small):
 
 def _get_key(bidsfile, entities):
     return tuple([bidsfile.entities[e] for e in entities])
+
+
+def add_pipeline(db_name):
+    study_id, key = db_name.split("_")
+    study = dashboard.models.Study.query.get(study_id)
+    if not study:
+        logger.error(f"Study {study_id} doesnt exist. Dashboard will "
+                     f"ignore niviz-rater database {db_name}")
+        return
+    study.add_pipeline(key, 'niviz_rater.index', 'Niviz Rater QC', 'study')
 
 
 if __name__ == "__main__":
