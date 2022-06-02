@@ -27,7 +27,7 @@ def register_bp(app):
 
     base_uri = app.config["DATABASE_ROOT_URI"]
     for db_name in config:
-        app.config["SQLALCHEMY_BINDS"][db_name] = f"{base_uri}/{db_name}"
+        app.config["SQLALCHEMY_BINDS"][db_name] = f"{base_uri}/{db_name.lower()}"
     return app
 
 
