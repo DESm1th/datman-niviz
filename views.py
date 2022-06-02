@@ -3,7 +3,7 @@ import logging
 
 from flask import (render_template, current_app, request, send_from_directory,
                    redirect, url_for, flash)
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from . import niviz_bp
 from niviz_rater.utils import set_db
