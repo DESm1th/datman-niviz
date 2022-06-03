@@ -43,8 +43,10 @@ must be yaml format and must contain one entry per pipeline.
 Each entry must be formatted like below:
 ```YAML
 STUDY_pipeline:
-  base_dir: /some/path/to/niviz-rater/input/data
-  qc_spec: /some/path/to/niviz-rater/spec_file.yaml
+  base_dir: /some/path/to/niviz_rater/data
+  qc_spec: /some/path/to/niviz_rater/spec_file.yaml
+  bids_config: /some/path/to/alt_config.json          # bids_config is optional
+  schema: /some/path/to/alt/schema.yaml               # schema is optional
 ```
 
 `STUDY_pipeline` is the name to use when accessing the data through
