@@ -5,7 +5,7 @@ This is a datman/dashboard-ized version of Jer's lovely [niviz-rater app.](https
 2. Add datman_niviz as a git submodule
 ```bash
 cd datman-dashboard/dashboard/blueprints
-git submodule add git@github.com:DESm1th/datman_niviz.git
+git submodule add git@github.com:TIGRLab/datman_niviz.git
 ```
 3. Build the static files. Note that you must have npm installed. If this
 step is successful it will have created the folder
