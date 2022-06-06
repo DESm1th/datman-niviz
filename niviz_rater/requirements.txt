@@ -1,4 +1,4 @@
 pyyaml
-pybids
+pybids>=0.15.1
 yamale
 psycopg2-binary
