@@ -2,10 +2,10 @@ This is a datman/dashboard-ized version of Jer's lovely [niviz-rater app.](https
 
 ## Installation
 1. [install the dashboard](http://imaging-genetics.camh.ca/datman-dashboard/installation.html) if you haven't already. Note that the below instructions are for users following the 'full installation' instructions.
-2. Add datman_niviz as a git submodule
+2. Add datman_niviz to the blueprint folder
 ```bash
 cd datman-dashboard/dashboard/blueprints
-git submodule add git@github.com:TIGRLab/datman_niviz.git
+git clone git@github.com:TIGRLab/datman_niviz.git
 ```
 3. Install the requirements
 ```bash
