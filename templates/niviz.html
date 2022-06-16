@@ -9,7 +9,7 @@
 	<link rel='icon' type='image/png' href='./favicon.png'>
 	<link rel='stylesheet' href="{{ url_for('static', filename='niviz_rater/bundle.css') }}">
 
-  <script type="text/javascript">const csrfToken = {{ csrf_token() }};</script>
+  <script type="text/javascript">const csrfToken = "{{ csrf_token() }}";</script>
 	<script defer src="{{ url_for('static', filename='niviz_rater/bundle.js') }}"></script>
 </head>
 
