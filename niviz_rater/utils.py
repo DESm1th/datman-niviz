@@ -36,3 +36,12 @@ def get_config():
         logger.error(f"Config file not provided. Please set {ENV_CONFIG_VAR}")
         return {}
     return config
+
+
+def parse_db_name(db_name):
+    """Parse the database name into the study and pipeline name fields.
+    """
+    fields = db_name.split("_")
+    study = fields[0]
+    pipeline = "_".join(fields[1:])
+    return study, pipeline

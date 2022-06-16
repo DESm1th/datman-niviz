@@ -34,7 +34,7 @@ from yamale.validators import DefaultValidators, Validator
 import dashboard
 from dashboard import create_app, db
 import niviz_rater.models as models
-from niviz_rater.utils import get_config, set_db
+from niviz_rater.utils import get_config, set_db, parse_db_name
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +197,7 @@ def initialize_db(db_name, config, dash_config):
 
     qc_spec = get_qc_spec(db_name, config)
     bids_files = get_files(db_name, config, qc_spec)
-    study, pipeline = db_name.split("_")
+    study, pipeline = parse_db_name(db_name)
     build_index(study, pipeline, bids_files, qc_spec)
     add_pipeline(db_name)
 
@@ -405,7 +405,7 @@ def _get_key(bidsfile, entities):
 
 
 def add_pipeline(db_name):
-    study_id, key = db_name.split("_")
+    study_id, key = parse_db_name(db_name)
     study = dashboard.models.Study.query.get(study_id)
     if not study:
         logger.error(f"Study {study_id} doesnt exist. Dashboard will "

@@ -57,7 +57,9 @@ STUDY_pipeline:
     niviz-rater, and the name that will be used for the database.
   - 'STUDY' must be the name of a datman managed study.
   - 'pipeline' must be a unique name for the pipeline data to be displayed
-    by niviz-rater
+    by niviz-rater. Note that this field MAY contain underscores, but
+    otherwise must consist only of alphanumeric characters (e.g. using '-' or
+    a blank space in a pipeline name will cause issues.)
   - Note that 'STUDY' and 'pipeline' MUST be separated by an underscore.
 
 At a minimum you must specify the `base_dir` and `qc_spec` arguments for
