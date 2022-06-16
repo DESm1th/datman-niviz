@@ -411,7 +411,9 @@ def add_pipeline(db_name):
         logger.error(f"Study {study_id} doesnt exist. Dashboard will "
                      f"ignore niviz-rater database {db_name}")
         return
-    study.add_pipeline(key, 'niviz_rater.index', 'Niviz Rater QC', 'study')
+    study.add_pipeline(
+        key, 'niviz_rater.index', f'Niviz Rater - {key}', 'study'
+    )
 
 
 if __name__ == "__main__":
