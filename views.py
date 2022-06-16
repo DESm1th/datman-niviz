@@ -191,8 +191,8 @@ def update_rating(study, pipeline):
         setattr(entity, k, data[k])
     try:
         entity.save()
-    except:  # noqa: E722
-        return {}, 400
+    except Exception as e:
+        return {'Error': str(e)}, 400
 
     return {}, 200
 

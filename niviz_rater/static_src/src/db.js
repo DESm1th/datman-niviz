@@ -9,9 +9,7 @@ async function postDB(endpoint, content){
 		endpoint,
 		{
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
+			headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
 			body: JSON.stringify(content)
 		}
 	)
