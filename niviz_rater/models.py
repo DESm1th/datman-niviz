@@ -89,7 +89,7 @@ class Entity(TableMixin, db.Model):
         return (
             rating,
             self.has_failed,
-            self.comment or ""
+            self.comment.replace("\n","\\n") or ""
         )
 
 
