@@ -397,6 +397,15 @@ def add_images(e, entity):
 
 
 def _is_subdict(big, small):
+    # Try to account for the fact that BIDSLayout unpredictably produces
+    # entities with 'descr' or 'description' and causes issues with matching
+    # the config.
+    if 'desc' in small and 'description' in big:
+        small['description'] = small['desc']
+        del small['desc']
+    elif 'description' in small and 'desc' in big:
+        small['desc'] = small['description']
+        del small['description']
     return dict(big, **small) == big
 
 
