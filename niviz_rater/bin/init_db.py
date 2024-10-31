@@ -398,15 +398,28 @@ def add_images(e, entity):
 
 def _is_subdict(big, small):
     # Try to account for the fact that BIDSLayout unpredictably produces
-    # entities with 'descr' or 'description' and causes issues with matching
+    # entities with 'desc' or 'description' and causes issues with matching
     # the config.
-    if 'desc' in small and 'description' in big:
-        small['description'] = small['desc']
-        del small['desc']
-    elif 'description' in small and 'desc' in big:
-        small['desc'] = small['description']
-        del small['description']
+    if 'description' in big:
+        big = _fix_desc(big)
+
+    if 'description' in small:
+        small = _fix_desc(small)
+
+    # Account for when description needs to be explicitly missing from entity
+    if 'desc' in small and small['desc'] is None:
+        return True if 'desc' not in big or big['desc'] is None else False
+    
     return dict(big, **small) == big
+
+
+def _fix_desc(item):
+    # Ensure all entities and descriptors use 'desc' for comparison sake
+    # .. but don't modify the originals.
+    new_item = item.copy()
+    new_item['desc'] = item['description']
+    del new_item['description']
+    return new_item
 
 
 def _get_key(bidsfile, entities):
