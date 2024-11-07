@@ -407,9 +407,10 @@ def _is_subdict(big, small):
         small = _fix_desc(small)
 
     # Account for when description needs to be explicitly missing from entity
-    if 'desc' in small and small['desc'] is None:
-        return True if 'desc' not in big or big['desc'] is None else False
-    
+    if 'desc' in small and small['desc'] == 'None' and 'desc' not in big:
+        big = big.copy()
+        big['desc'] = 'None'
+
     return dict(big, **small) == big
 
 
